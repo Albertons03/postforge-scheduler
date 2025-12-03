@@ -3,12 +3,13 @@
 Egy AI-alapú tool, ami segít social media posztokat generálni, schedule-elni és publikálni.
 
 ## Tech Stack
-- **Frontend:** Next.js 15 App Router, React, TypeScript, Tailwind CSS
-- **Backend:** Next.js API Routes, Prisma ORM
+- **Frontend:** Next.js 16 (with Turbopack), React 19, TypeScript, Tailwind CSS 4
+- **Backend:** Next.js API Routes, Prisma ORM 7
 - **Database:** Supabase (PostgreSQL)
 - **Auth:** Clerk
-- **AI:** Claude 3.5 Sonnet API
+- **AI:** Claude 3.5 Sonnet API (Anthropic SDK)
 - **Payments:** Stripe
+- **Testing:** Playwright
 - **Deploy:** Vercel
 
 ## Features (MVP)
@@ -56,12 +57,17 @@ cp .env.example .env.local
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - from Stripe dashboard
 - `STRIPE_SECRET_KEY` - from Stripe dashboard
 
-5. Initialize database:
+5. Generate Prisma Client:
 ```bash
-npx prisma migrate dev --name init
+npm run prisma:generate
 ```
 
-6. Run development server:
+6. Initialize database (once DATABASE_URL is configured):
+```bash
+npm run db:migrate
+```
+
+7. Run development server:
 ```bash
 npm run dev
 ```
