@@ -9,18 +9,20 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  clerkId   String   @unique
-  email     String   @unique
-  credits   Int      @default(10)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  clerkId        String   @unique
+  email          String   @unique
+  credits        Int      @default(10)
+  organizationId String?  // Optional: for Team plan support
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   posts              Post[]
   creditTransactions CreditTransaction[]
 
   @@index([clerkId])
   @@index([email])
+  @@index([organizationId])
 }
 
 model Post {
