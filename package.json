@@ -15,7 +15,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
     "@clerk/nextjs": "^6.35.6",
-    "@prisma/client": "^7.0.1",
+    "@prisma/client": "^6.19.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-navigation-menu": "^1.2.14",
@@ -35,7 +35,7 @@
     "next": "16.0.6",
     "openai": "^6.9.1",
     "postcss": "8.5.6",
-    "prisma": "^7.0.1",
+    "prisma": "^6.19.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "stripe": "^20.0.0",
