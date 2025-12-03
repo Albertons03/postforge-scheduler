@@ -30,15 +30,16 @@ model Post {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  content   String
+  content   String   @db.VarChar(500) // MAX 500 chars validation
   platform  String   @default("linkedin")
-  status    String   @default("draft")
+  status    String   @default("draft") // draft, scheduled, published, failed
   metadata  Json     @default("{}")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userId])
+  @@index([status])
   @@index([createdAt])
 }
 
@@ -47,12 +48,13 @@ model CreditTransaction {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  amount      Int
+  amount      Int      // MIN 1 (validated in application logic)
   type        String   // "generation", "purchase", "refund", "bonus"
   description String   @default("")
 
   createdAt   DateTime @default(now())
 
   @@index([userId])
+  @@index([type])
   @@index([createdAt])
 }

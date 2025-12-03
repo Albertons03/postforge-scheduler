@@ -10,7 +10,11 @@
     "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
     "test": "playwright test"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
@@ -46,6 +50,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
-    "playwright": "^1.57.0"
+    "playwright": "^1.57.0",
+    "tsx": "^4.21.0"
   }
 }
