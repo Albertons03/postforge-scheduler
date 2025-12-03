@@ -149,13 +149,15 @@ export default function PostGenerator() {
       )}
 
       {/* Form Section */}
-      <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-        <h2 className="text-xl font-bold text-white mb-6">Generate Post</h2>
+      <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-2xl border-2 border-slate-700/50 p-8 shadow-xl">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent mb-8">
+          Generate Post
+        </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-5">
           {/* Topic Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
               Topic / Idea
             </label>
             <input
@@ -164,21 +166,21 @@ export default function PostGenerator() {
               value={formData.topic}
               onChange={handleInputChange}
               placeholder="E.g., AI in healthcare, Remote work tips..."
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              className="w-full px-5 py-3.5 bg-slate-900/60 border-2 border-slate-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 transition-all duration-200 hover:border-slate-500"
               disabled={isLoading}
             />
           </div>
 
           {/* Platform Select */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
               Platform
             </label>
             <select
               name="platform"
               value={formData.platform}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              className="w-full px-5 py-3.5 bg-slate-900/60 border-2 border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 hover:border-slate-500 cursor-pointer"
               disabled={isLoading}
             >
               <option value="linkedin">LinkedIn</option>
@@ -191,14 +193,14 @@ export default function PostGenerator() {
 
           {/* Tone Select */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
               Tone
             </label>
             <select
               name="tone"
               value={formData.tone}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              className="w-full px-5 py-3.5 bg-slate-900/60 border-2 border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 hover:border-slate-500 cursor-pointer"
               disabled={isLoading}
             >
               <option value="Professional">Professional</option>
@@ -209,14 +211,14 @@ export default function PostGenerator() {
 
           {/* Length Select */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-semibold text-gray-200 mb-2">
               Length
             </label>
             <select
               name="length"
               value={formData.length}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              className="w-full px-5 py-3.5 bg-slate-900/60 border-2 border-slate-600/50 rounded-xl text-white focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 transition-all duration-200 hover:border-slate-500 cursor-pointer"
               disabled={isLoading}
             >
               <option value="Short">Short (&lt; 140 chars)</option>
@@ -229,16 +231,16 @@ export default function PostGenerator() {
           <button
             onClick={handleGenerate}
             disabled={isLoading || !formData.topic.trim()}
-            className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition flex items-center justify-center space-x-2 group"
+            className="w-full mt-2 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 disabled:from-slate-700 disabled:via-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 group shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 disabled:shadow-none"
           >
             {isLoading ? (
               <>
-                <Loader className="w-5 h-5 animate-spin" />
-                <span>Generating...</span>
+                <Loader className="w-6 h-6 animate-spin" />
+                <span>Generating Magic...</span>
               </>
             ) : (
               <>
-                <Zap className="w-5 h-5 group-hover:scale-110 transition" />
+                <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
                 <span>Generate Post</span>
               </>
             )}
@@ -248,17 +250,17 @@ export default function PostGenerator() {
 
       {/* Generated Post Section */}
       {(generatedPost || editContent) && (
-        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-          <h2 className="text-xl font-bold text-white mb-4">
+        <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-2xl border-2 border-slate-700/50 p-8 shadow-xl">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent mb-6">
             Generated Post
           </h2>
 
           {/* Loading Skeleton */}
           {isLoading && (
-            <div className="space-y-3 mb-4">
-              <div className="h-6 bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-6 bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-6 bg-gray-700 rounded animate-pulse w-2/3"></div>
+            <div className="space-y-4 mb-4">
+              <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
+              <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse"></div>
+              <div className="h-8 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl animate-pulse w-2/3"></div>
             </div>
           )}
 
@@ -269,25 +271,25 @@ export default function PostGenerator() {
                 ref={textareaRef}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition resize-none font-mono text-sm"
+                className="w-full px-5 py-4 bg-slate-900/60 border-2 border-slate-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/20 transition-all duration-200 resize-none font-mono text-sm leading-relaxed hover:border-slate-500"
                 placeholder="Your generated post..."
                 rows={5}
               />
 
               {/* Post Info */}
               {generatedPost && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="inline-block px-3 py-1 bg-indigo-900 text-indigo-300 rounded-full text-xs font-medium">
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-xs font-semibold shadow-md">
                     {generatedPost.platform}
                   </span>
-                  <span className="inline-block px-3 py-1 bg-purple-900 text-purple-300 rounded-full text-xs font-medium">
+                  <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl text-xs font-semibold shadow-md">
                     {generatedPost.status}
                   </span>
-                  <span className="inline-block px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-xs font-medium">
+                  <span className="inline-flex items-center px-4 py-2 bg-slate-700/80 text-gray-200 rounded-xl text-xs font-semibold">
                     {editContent.length} characters
                   </span>
                   {remainingCredits !== null && (
-                    <span className="inline-block px-3 py-1 bg-green-900 text-green-300 rounded-full text-xs font-medium ml-auto">
+                    <span className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-xs font-semibold shadow-md ml-auto">
                       Credits: {remainingCredits}
                     </span>
                   )}
@@ -298,25 +300,25 @@ export default function PostGenerator() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <button
                   onClick={handleCopy}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition"
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 border-2 border-slate-600/50 hover:border-slate-500"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-5 h-5" />
                   <span>Copy</span>
                 </button>
 
                 <button
                   onClick={handleSave}
-                  className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:scale-105 active:scale-95"
                 >
-                  <Save className="w-4 h-4" />
+                  <Save className="w-5 h-5" />
                   <span>Save</span>
                 </button>
 
                 <button
                   onClick={handleClear}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition ml-auto"
+                  className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white rounded-xl transition-all duration-200 font-semibold shadow-lg shadow-rose-500/30 hover:shadow-xl hover:shadow-rose-500/40 hover:scale-105 active:scale-95 ml-auto"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-5 h-5" />
                   <span>Clear</span>
                 </button>
               </div>
