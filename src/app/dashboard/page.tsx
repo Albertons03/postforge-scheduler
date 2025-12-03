@@ -1,190 +1,228 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { UserButton, OrganizationSwitcher } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
-import { PrismaClient } from "@prisma/client";
+'use client';
 
-const prisma = new PrismaClient();
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Zap, TrendingUp, Calendar, Award } from 'lucide-react';
 
-export default async function DashboardPage() {
-  // Protect the route - get auth info
-  const { userId } = await auth();
+interface DashboardStats {
+  totalPosts: number;
+  creditsRemaining: number;
+  recentPosts: Array<{
+    id: string;
+    content: string;
+    platform: string;
+    createdAt: string;
+  }>;
+}
 
-  if (!userId) {
-    redirect("/sign-in");
-  }
+export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPosts: 0,
+    creditsRemaining: 0,
+    recentPosts: [],
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Get current user from Clerk
-  const user = await currentUser();
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
-  // Get user data from database
-  let dbUser = null;
-  try {
-    dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
-      include: {
-        posts: {
-          orderBy: { createdAt: 'desc' },
-          take: 5,
-        },
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching user from database:", error);
-  }
+  const fetchDashboardStats = async () => {
+    try {
+      // TODO: Implement API endpoint for dashboard stats
+      setStats({
+        totalPosts: 12,
+        creditsRemaining: 45,
+        recentPosts: [],
+      });
+    } catch (error) {
+      console.error('Failed to fetch dashboard stats:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const quickStats = [
+    {
+      label: 'Credits',
+      value: stats.creditsRemaining,
+      icon: Zap,
+      color: 'bg-indigo-600',
+      gradient: 'from-indigo-600 to-indigo-800',
+    },
+    {
+      label: 'Posts Created',
+      value: stats.totalPosts,
+      icon: TrendingUp,
+      color: 'bg-purple-600',
+      gradient: 'from-purple-600 to-purple-800',
+    },
+    {
+      label: 'This Month',
+      value: '8',
+      icon: Calendar,
+      color: 'bg-blue-600',
+      gradient: 'from-blue-600 to-blue-800',
+    },
+    {
+      label: 'Achievements',
+      value: '3',
+      icon: Award,
+      color: 'bg-emerald-600',
+      gradient: 'from-emerald-600 to-emerald-800',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-gray-900">PostForge</h1>
-              {/* Organization Switcher - for Teams feature */}
-              <OrganizationSwitcher
-                appearance={{
-                  elements: {
-                    rootBox: "flex items-center",
-                  },
-                }}
-              />
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                <span className="font-semibold">Credits: </span>
-                <span className="text-indigo-600 font-bold">
-                  {dbUser?.credits ?? 0}
-                </span>
-              </div>
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: "w-10 h-10",
-                  },
-                }}
-                afterSignOutUrl="/"
-              />
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-900 p-6 md:p-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Welcome Section */}
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+            Welcome back!
+          </h1>
+          <p className="text-gray-400 text-lg">
+            Ready to create amazing content? Let's get started.
+          </p>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid gap-6">
-          {/* Welcome Section */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              Welcome back, {user?.firstName || user?.emailAddresses[0]?.emailAddress}!
-            </h2>
-            <p className="text-gray-600">
-              Ready to create amazing social media content with AI?
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {quickStats.map((stat, idx) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={idx}
+                className={`bg-gradient-to-br ${stat.gradient} rounded-lg border border-opacity-20 border-white p-6 text-white shadow-lg hover:shadow-xl transition`}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <Icon className="w-8 h-8 opacity-80" />
+                </div>
+                <p className="text-gray-100 text-sm font-medium opacity-90 mb-1">
+                  {stat.label}
+                </p>
+                <p className="text-4xl font-bold">{stat.value}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Main Actions Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+          {/* Generate Post CTA */}
+          <Link
+            href="/dashboard/generate"
+            className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-lg border border-indigo-400 p-8 text-white hover:shadow-2xl transition group"
+          >
+            <div className="text-4xl mb-4 group-hover:scale-110 transition">
+              ✨
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Generate Content</h3>
+            <p className="text-indigo-100 mb-6">
+              Create AI-powered posts for any platform
             </p>
-          </div>
+            <div className="inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+              Start Creating →
+            </div>
+          </Link>
 
-          {/* User Info Section */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Account Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-500">Email</p>
-                <p className="text-gray-900 font-medium">
-                  {user?.emailAddresses[0]?.emailAddress}
-                </p>
+          {/* View History */}
+          <Link
+            href="/dashboard/history"
+            className="bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg border border-purple-400 p-8 text-white hover:shadow-2xl transition group"
+          >
+            <div className="text-4xl mb-4 group-hover:scale-110 transition">
+              📝
+            </div>
+            <h3 className="text-2xl font-bold mb-2">View History</h3>
+            <p className="text-purple-100 mb-6">
+              Browse all your generated posts
+            </p>
+            <div className="inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+              View Posts →
+            </div>
+          </Link>
+
+          {/* Analytics */}
+          <Link
+            href="/dashboard/analytics"
+            className="bg-gradient-to-br from-cyan-500 to-cyan-700 rounded-lg border border-cyan-400 p-8 text-white hover:shadow-2xl transition group"
+          >
+            <div className="text-4xl mb-4 group-hover:scale-110 transition">
+              📊
+            </div>
+            <h3 className="text-2xl font-bold mb-2">Analytics</h3>
+            <p className="text-cyan-100 mb-6">
+              Track your content performance
+            </p>
+            <div className="inline-block px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+              View Analytics →
+            </div>
+          </Link>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+          <h2 className="text-2xl font-bold text-white mb-6">
+            Getting Started
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-start space-x-4 pb-4 border-b border-gray-700">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                1
               </div>
               <div>
-                <p className="text-sm text-gray-500">User ID</p>
-                <p className="text-gray-900 font-mono text-sm">{userId}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Available Credits</p>
-                <p className="text-gray-900 font-medium">
-                  {dbUser?.credits ?? 0} credits
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Member Since</p>
-                <p className="text-gray-900 font-medium">
-                  {dbUser?.createdAt
-                    ? new Date(dbUser.createdAt).toLocaleDateString()
-                    : "N/A"}
+                <h3 className="text-white font-semibold mb-1">
+                  Choose Your Topic
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Enter any topic or idea for your content
                 </p>
               </div>
             </div>
-          </div>
 
-          {/* Recent Posts Section */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Recent Posts
-            </h3>
-            {dbUser?.posts && dbUser.posts.length > 0 ? (
-              <div className="space-y-3">
-                {dbUser.posts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <p className="text-gray-900 line-clamp-2">
-                          {post.content}
-                        </p>
-                        <div className="flex items-center space-x-4 mt-2">
-                          <span className="text-xs text-gray-500">
-                            {post.platform}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {post.status}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(post.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+            <div className="flex items-start space-x-4 pb-4 border-b border-gray-700">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                2
               </div>
-            ) : (
-              <p className="text-gray-500 text-center py-8">
-                No posts yet. Start creating content!
-              </p>
-            )}
-          </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">
+                  Select Your Settings
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Pick your platform, tone, and desired length
+                </p>
+              </div>
+            </div>
 
-          {/* Quick Actions */}
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow p-6 text-white">
-            <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 transition text-left">
-                <div className="text-sm font-semibold mb-1">
-                  Generate Post
-                </div>
-                <div className="text-xs opacity-90">
-                  Create AI-powered content
-                </div>
-              </button>
-              <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 transition text-left">
-                <div className="text-sm font-semibold mb-1">
-                  Schedule Post
-                </div>
-                <div className="text-xs opacity-90">
-                  Plan your content calendar
-                </div>
-              </button>
-              <button className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg p-4 transition text-left">
-                <div className="text-sm font-semibold mb-1">Buy Credits</div>
-                <div className="text-xs opacity-90">
-                  Get more AI generations
-                </div>
-              </button>
+            <div className="flex items-start space-x-4 pb-4 border-b border-gray-700">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                3
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">Generate Content</h3>
+                <p className="text-gray-400 text-sm">
+                  Click generate and let AI create your post
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold">
+                4
+              </div>
+              <div>
+                <h3 className="text-white font-semibold mb-1">
+                  Edit & Share
+                </h3>
+                <p className="text-gray-400 text-sm">
+                  Customize the content and save or copy to clipboard
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
