@@ -52,7 +52,7 @@ body {
     transition: box-shadow 0.3s ease;
   }
 
-  /* Shimmer effect */
+  /* Shimmer effect - Legacy */
   @keyframes shimmer {
     0% {
       background-position: -1000px 0;
@@ -72,6 +72,8 @@ body {
     );
     background-size: 1000px 100%;
   }
+
+  /* Enhanced shimmer for loading skeletons - defined in tailwind.config.ts */
 
   /* Pulse glow */
   @keyframes pulse-glow {

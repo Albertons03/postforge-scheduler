@@ -138,19 +138,18 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Credit Overview Section */}
-        {!isLoadingCredits && creditSummary && (
-          <div className="mb-10">
-            <CreditOverview
-              currentBalance={creditSummary.currentBalance}
-              totalPurchased={creditSummary.totalPurchased}
-              totalSpent={creditSummary.totalSpent}
-              thisMonthUsage={creditSummary.spentThisMonth}
-              onBuyCredits={handleBuyCredits}
-              onViewHistory={handleViewHistory}
-            />
-          </div>
-        )}
+        {/* Credit Overview Section - Always show with loading state */}
+        <div className="mb-10">
+          <CreditOverview
+            currentBalance={creditSummary?.currentBalance ?? 0}
+            totalPurchased={creditSummary?.totalPurchased ?? 0}
+            totalSpent={creditSummary?.totalSpent ?? 0}
+            thisMonthUsage={creditSummary?.spentThisMonth ?? 0}
+            onBuyCredits={handleBuyCredits}
+            onViewHistory={handleViewHistory}
+            isLoading={isLoadingCredits}
+          />
+        </div>
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">

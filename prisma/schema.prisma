@@ -34,6 +34,7 @@ model Post {
   content   String   @db.VarChar(500) // MAX 500 chars validation
   platform  String   @default("linkedin")
   status    String   @default("draft") // draft, scheduled, published, failed
+  scheduledAt DateTime? @db.Timestamptz() // When the post should be published
   metadata  Json     @default("{}")
 
   createdAt DateTime @default(now())
@@ -42,6 +43,7 @@ model Post {
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([scheduledAt])
 }
 
 model CreditTransaction {
