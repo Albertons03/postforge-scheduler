@@ -1,6 +1,8 @@
 'use client';
 
 import PostGenerator from '@/components/PostGenerator';
+import CreditCostBadge from '@/components/credits/CreditCostBadge';
+import { CREDIT_COSTS } from '@/lib/constants/pricing';
 
 export default function GeneratePage() {
   return (
@@ -8,9 +10,16 @@ export default function GeneratePage() {
       <div className="max-w-4xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3">
-            Generate Content
-          </h1>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Generate Content
+            </h1>
+            <CreditCostBadge
+              cost={CREDIT_COSTS.STANDARD_GENERATION}
+              tooltipContent="Each generation costs 1 credit. This includes AI-powered content creation optimized for your chosen platform."
+              variant="default"
+            />
+          </div>
           <p className="text-gray-400 text-lg">
             Create AI-powered social media posts tailored to your audience and platform
           </p>

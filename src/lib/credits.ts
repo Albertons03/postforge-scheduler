@@ -94,27 +94,35 @@ export async function deductCredits(
       };
     }
 
-    // Start transaction to deduct credits and log transaction
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        credits: {
-          decrement: amount,
+    // Start transaction to deduct credits and log transaction atomically
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: {
+          credits: {
+            decrement: amount,
+          },
         },
-      },
-      select: { credits: true },
+        select: { credits: true },
+      });
+
+      // Create transaction record with balanceAfter
+      const transaction = await tx.creditTransaction.create({
+        data: {
+          userId: userId,
+          amount: -amount, // Negative for deduction
+          type: 'generation',
+          description: description,
+          balanceAfter: updatedUser.credits,
+          metadata: {},
+        },
+        select: { id: true },
+      });
+
+      return { updatedUser, transaction };
     });
 
-    // Create transaction record
-    const transaction = await prisma.creditTransaction.create({
-      data: {
-        userId: userId,
-        amount: -amount, // Negative for deduction
-        type: 'generation',
-        description: description,
-      },
-      select: { id: true },
-    });
+    const { updatedUser, transaction } = result;
 
     console.log(
       `[Credits] Deducted ${amount} credits from ${userId}. Remaining: ${updatedUser.credits}. Transaction: ${transaction.id}`
@@ -169,27 +177,35 @@ export async function addCredits(
       };
     }
 
-    // Add credits to user
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        credits: {
-          increment: amount,
+    // Add credits to user atomically with transaction record
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: {
+          credits: {
+            increment: amount,
+          },
         },
-      },
-      select: { credits: true },
+        select: { credits: true },
+      });
+
+      // Create transaction record with balanceAfter
+      const transaction = await tx.creditTransaction.create({
+        data: {
+          userId: userId,
+          amount: amount, // Positive for addition
+          type: type,
+          description: description,
+          balanceAfter: updatedUser.credits,
+          metadata: {},
+        },
+        select: { id: true },
+      });
+
+      return { updatedUser, transaction };
     });
 
-    // Create transaction record
-    const transaction = await prisma.creditTransaction.create({
-      data: {
-        userId: userId,
-        amount: amount, // Positive for addition
-        type: type,
-        description: description,
-      },
-      select: { id: true },
-    });
+    const { updatedUser, transaction } = result;
 
     console.log(
       `[Credits] Added ${amount} credits to ${userId} (${type}). Total: ${updatedUser.credits}. Transaction: ${transaction.id}`
@@ -258,30 +274,75 @@ export async function getUserCreditsInfo(
 }
 
 /**
- * Get credit transaction history for a user
+ * Get credit transaction history for a user with pagination and filtering
  */
 export async function getTransactionHistory(
   userId: string,
-  limit: number = 10
+  options: {
+    limit?: number;
+    page?: number;
+    type?: string;
+    search?: string;
+  } = {}
 ) {
   try {
+    const { limit = 20, page = 1, type, search } = options;
+    const skip = (page - 1) * limit;
+
+    // Build where clause
+    const where: any = { userId };
+
+    if (type && type !== 'all') {
+      where.type = type;
+    }
+
+    if (search) {
+      where.description = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    // Get total count for pagination
+    const total = await prisma.creditTransaction.count({ where });
+
+    // Get transactions
     const transactions = await prisma.creditTransaction.findMany({
-      where: { userId },
+      where,
       orderBy: { createdAt: 'desc' },
       take: limit,
+      skip,
       select: {
         id: true,
         amount: true,
         type: true,
         description: true,
+        balanceAfter: true,
+        metadata: true,
         createdAt: true,
       },
     });
 
-    return transactions;
+    return {
+      transactions,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   } catch (error) {
     console.error('[Credits] Error getting transaction history:', error);
-    return [];
+    return {
+      transactions: [],
+      pagination: {
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+      },
+    };
   }
 }
 

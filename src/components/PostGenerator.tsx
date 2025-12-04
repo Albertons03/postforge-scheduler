@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { generatePostAction } from '@/app/actions/generatePost';
 import Toast from './Toast';
+import CreditCostBadge from './credits/CreditCostBadge';
+import { CREDIT_COSTS } from '@/lib/constants/pricing';
 
 interface GeneratedPost {
   id: string;
@@ -227,24 +229,36 @@ export default function PostGenerator() {
             </select>
           </div>
 
-          {/* Generate Button */}
-          <button
-            onClick={handleGenerate}
-            disabled={isLoading || !formData.topic.trim()}
-            className="w-full mt-2 px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 disabled:from-slate-700 disabled:via-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 group shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 disabled:shadow-none"
-          >
-            {isLoading ? (
-              <>
-                <Loader className="w-6 h-6 animate-spin" />
-                <span>Generating Magic...</span>
-              </>
-            ) : (
-              <>
-                <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
-                <span>Generate Post</span>
-              </>
-            )}
-          </button>
+          {/* Generate Button with Credit Badge */}
+          <div className="mt-2 space-y-3">
+            <button
+              onClick={handleGenerate}
+              disabled={isLoading || !formData.topic.trim()}
+              className="w-full px-8 py-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 disabled:from-slate-700 disabled:via-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white font-bold text-lg rounded-xl transition-all duration-200 flex items-center justify-center space-x-3 group shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 hover:scale-105 active:scale-95 disabled:shadow-none"
+            >
+              {isLoading ? (
+                <>
+                  <Loader className="w-6 h-6 animate-spin" />
+                  <span>Generating Magic...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
+                  <span>Generate Post</span>
+                </>
+              )}
+            </button>
+
+            {/* Credit Cost Information */}
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
+              <span>This will cost</span>
+              <CreditCostBadge
+                cost={CREDIT_COSTS.STANDARD_GENERATION}
+                tooltipContent="Standard AI generation includes: platform-optimized content, tone matching, and length customization."
+                variant="inline"
+              />
+            </div>
+          </div>
         </div>
       </div>
 

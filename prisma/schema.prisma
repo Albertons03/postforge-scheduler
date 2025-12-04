@@ -19,6 +19,7 @@ model User {
 
   posts              Post[]
   creditTransactions CreditTransaction[]
+  stripeTransactions StripeTransaction[]
 
   @@index([clerkId])
   @@index([email])
@@ -48,13 +49,62 @@ model CreditTransaction {
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  amount      Int      // MIN 1 (validated in application logic)
+  amount      Int      // Negative for deductions, positive for additions
   type        String   // "generation", "purchase", "refund", "bonus"
   description String   @default("")
+  balanceAfter Int     @default(0)  // Credit balance after this transaction
+  metadata    Json     @default("{}")  // Store additional data (Stripe session ID, post ID, etc.)
 
   createdAt   DateTime @default(now())
 
   @@index([userId])
   @@index([type])
   @@index([createdAt])
+}
+
+model StripeTransaction {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  stripeSessionId String   @unique  // Checkout Session ID
+  stripePaymentId String?  // Payment Intent ID
+
+  amount          Int      // Amount in cents
+  currency        String   @default("usd")
+  credits         Int      // Credits purchased
+
+  status          String   // "pending", "completed", "failed", "refunded"
+
+  metadata        Json     @default("{}")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@index([stripeSessionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model PricingPlan {
+  id              String   @id @default(cuid())
+
+  name            String   @unique  // "Starter", "Popular", "Pro"
+  stripePriceId   String   @unique
+  stripeProductId String
+
+  credits         Int
+  priceInCents    Int
+  currency        String   @default("usd")
+
+  isActive        Boolean  @default(true)
+  isPopular       Boolean  @default(false)
+
+  displayOrder    Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
 }

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Zap, TrendingUp, Calendar, Award } from 'lucide-react';
+import CreditOverview from '@/components/credits/CreditOverview';
 
 interface DashboardStats {
   totalPosts: number;
@@ -15,16 +17,27 @@ interface DashboardStats {
   }>;
 }
 
+interface CreditSummary {
+  currentBalance: number;
+  totalPurchased: number;
+  totalSpent: number;
+  spentThisMonth: number;
+}
+
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     totalPosts: 0,
     creditsRemaining: 0,
     recentPosts: [],
   });
+  const [creditSummary, setCreditSummary] = useState<CreditSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCredits, setIsLoadingCredits] = useState(true);
 
   useEffect(() => {
     fetchDashboardStats();
+    fetchCreditSummary();
   }, []);
 
   const fetchDashboardStats = async () => {
@@ -40,6 +53,37 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchCreditSummary = async () => {
+    try {
+      const response = await fetch('/api/credits/summary');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setCreditSummary({
+            currentBalance: data.data.currentBalance,
+            totalPurchased: data.data.totalPurchased,
+            totalSpent: data.data.totalSpent,
+            spentThisMonth: data.data.spentThisMonth,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch credit summary:', error);
+    } finally {
+      setIsLoadingCredits(false);
+    }
+  };
+
+  const handleBuyCredits = () => {
+    // This will be handled by the CreditPurchaseModal in the layout
+    // For now, we can navigate to a dedicated purchase page or trigger a modal
+    router.push('/dashboard?showCreditModal=true');
+  };
+
+  const handleViewHistory = () => {
+    router.push('/dashboard/credits/history');
   };
 
   const quickStats = [
@@ -93,6 +137,20 @@ export default function DashboardPage() {
             Ready to create amazing content? Let's get started.
           </p>
         </div>
+
+        {/* Credit Overview Section */}
+        {!isLoadingCredits && creditSummary && (
+          <div className="mb-10">
+            <CreditOverview
+              currentBalance={creditSummary.currentBalance}
+              totalPurchased={creditSummary.totalPurchased}
+              totalSpent={creditSummary.totalSpent}
+              thisMonthUsage={creditSummary.spentThisMonth}
+              onBuyCredits={handleBuyCredits}
+              onViewHistory={handleViewHistory}
+            />
+          </div>
+        )}
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">

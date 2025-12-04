@@ -1,8 +1,8 @@
 'use server';
 
-import { auth } from '@clerk/nextjs/server';
 import { generatePost as generatePostWithClaude, logApiCall } from '@/lib/ai/claude';
 import { deductCredits, hasEnoughCredits } from '@/lib/credits';
+import { getOrCreateUser } from '@/lib/user';
 import { prisma } from '@/lib/prisma';
 
 /**
@@ -42,33 +42,17 @@ export async function generatePostAction(
   const startTime = Date.now();
 
   try {
-    // Authenticate user
-    const { userId } = await auth();
-
-    if (!userId) {
-      console.error('[GeneratePost] User not authenticated');
+    // Get or create user in database
+    // This ensures the user exists even if webhook didn't fire
+    let user;
+    try {
+      user = await getOrCreateUser();
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Authentication failed';
+      console.error('[GeneratePost] User authentication error:', errorMsg);
       return {
         success: false,
-        error: 'User not authenticated',
-      };
-    }
-
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkId: userId,
-      },
-      select: {
-        id: true,
-        credits: true,
-      },
-    });
-
-    if (!user) {
-      console.error(`[GeneratePost] User not found in database: ${userId}`);
-      return {
-        success: false,
-        error: 'User not found in database',
+        error: errorMsg,
       };
     }
 

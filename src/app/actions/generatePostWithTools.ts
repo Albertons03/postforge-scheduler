@@ -5,9 +5,9 @@
  * Handles post generation with hashtags and best time calculation
  */
 
-import { auth } from '@clerk/nextjs/server';
 import { generatePostWithToolsSequential } from '@/lib/ai/claude-streaming';
 import { deductCredits, hasEnoughCredits } from '@/lib/credits';
+import { getOrCreateUser } from '@/lib/user';
 import { prisma } from '@/lib/prisma';
 import type { GeneratePostInput, GeneratePostWithToolsResponse } from '@/lib/ai/types';
 
@@ -46,33 +46,17 @@ export async function generatePostWithToolsAction(
   const startTime = Date.now();
 
   try {
-    // Authenticate user
-    const { userId } = await auth();
-
-    if (!userId) {
-      console.error('[GeneratePostWithTools] User not authenticated');
+    // Get or create user in database
+    // This ensures the user exists even if webhook didn't fire
+    let user;
+    try {
+      user = await getOrCreateUser();
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Authentication failed';
+      console.error('[GeneratePostWithTools] User authentication error:', errorMsg);
       return {
         success: false,
-        error: 'User not authenticated',
-      };
-    }
-
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: {
-        clerkId: userId,
-      },
-      select: {
-        id: true,
-        credits: true,
-      },
-    });
-
-    if (!user) {
-      console.error(`[GeneratePostWithTools] User not found: ${userId}`);
-      return {
-        success: false,
-        error: 'User not found in database',
+        error: errorMsg,
       };
     }
 
