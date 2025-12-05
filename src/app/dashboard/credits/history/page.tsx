@@ -42,6 +42,7 @@ const TRANSACTION_TYPES = [
 
 export default function CreditHistoryPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState<PaginationInfo>({
     currentPage: 1,
     totalPages: 1,
@@ -61,6 +62,7 @@ export default function CreditHistoryPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to first page when search changes
     }, 500);
 
     return () => clearTimeout(timer);
@@ -69,7 +71,8 @@ export default function CreditHistoryPage() {
   // Fetch transactions
   useEffect(() => {
     fetchTransactions();
-  }, [pagination.currentPage, selectedType, debouncedSearch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, selectedType, debouncedSearch]);
 
   const fetchTransactions = async () => {
     setIsLoading(true);
@@ -77,7 +80,7 @@ export default function CreditHistoryPage() {
 
     try {
       const params = new URLSearchParams({
-        page: pagination.currentPage.toString(),
+        page: currentPage.toString(),
         limit: '20',
         type: selectedType,
         search: debouncedSearch,
@@ -104,12 +107,12 @@ export default function CreditHistoryPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    setPagination((prev) => ({ ...prev, currentPage: newPage }));
+    setCurrentPage(newPage);
   };
 
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
-    setPagination((prev) => ({ ...prev, currentPage: 1 }));
+    setCurrentPage(1);
   };
 
   const handleExportCSV = () => {

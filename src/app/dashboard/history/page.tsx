@@ -23,11 +23,23 @@ export default function HistoryPage() {
 
   const fetchPosts = async () => {
     try {
-      // TODO: Implement API endpoint to fetch user's posts
-      // For now, we'll just set empty array as posts are saved via generatePostAction
-      setPosts([]);
+      const response = await fetch('/api/posts');
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        // Map the data to include tone from metadata
+        const postsWithMetadata = result.data.map((post: any) => ({
+          ...post,
+          tone: post.metadata?.tone || 'N/A',
+        }));
+        setPosts(postsWithMetadata);
+      } else {
+        console.error('Failed to fetch posts:', result.error);
+        setPosts([]);
+      }
     } catch (error) {
       console.error('Failed to fetch posts:', error);
+      setPosts([]);
     } finally {
       setIsLoading(false);
     }
@@ -42,10 +54,15 @@ export default function HistoryPage() {
       });
 
       if (response.ok) {
+        // Remove the post from the list immediately for better UX
         setPosts(posts.filter((p) => p.id !== id));
+        alert('Post deleted successfully!');
+      } else {
+        alert('Failed to delete post');
       }
     } catch (error) {
       console.error('Failed to delete post:', error);
+      alert('Failed to delete post');
     }
   };
 

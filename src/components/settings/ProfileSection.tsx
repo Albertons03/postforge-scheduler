@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { User } from '@clerk/nextjs/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -20,7 +19,11 @@ import { Loader2, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface ProfileSectionProps {
-  clerkUser: User;
+  clerkUser: {
+    firstName: string | null;
+    lastName: string | null;
+    imageUrl: string;
+  };
   dbUser: {
     id: string;
     email: string;

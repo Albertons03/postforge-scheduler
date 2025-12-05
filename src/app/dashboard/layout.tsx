@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import CreditDisplay from '@/components/credits/CreditDisplay';
 import CreditPurchaseModal from '@/components/credits/CreditPurchaseModal';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { BottomNav } from '@/components/navigation/BottomNav';
+import { MobileSidebar } from '@/components/navigation/MobileSidebar';
 
 export default function DashboardLayout({
   children,
@@ -23,10 +26,24 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [showCreditModal, setShowCreditModal] = useState(false);
   const [credits, setCredits] = useState<number>(0);
   const [isLoadingCredits, setIsLoadingCredits] = useState(true);
   const pathname = usePathname();
+
+  // Prevent body scroll when mobile sidebar is open
+  useEffect(() => {
+    if (mobileSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileSidebarOpen]);
 
   // Fetch user credits
   useEffect(() => {
@@ -84,11 +101,11 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-gray-900 dark:text-gray-50">
-      {/* Sidebar */}
+      {/* Desktop Sidebar - Hidden on mobile */}
       <aside
         className={`${
           sidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-r border-gray-200 dark:border-slate-700/50 shadow-lg transition-all duration-300 flex flex-col`}
+        } hidden lg:flex bg-white dark:bg-gradient-to-b dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-r border-gray-200 dark:border-slate-700/50 shadow-lg transition-all duration-300 flex-col`}
       >
         {/* Logo Section */}
         <div className="p-4 border-b border-gray-200 dark:border-slate-700/50 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-600/10 dark:to-purple-600/10">
@@ -162,7 +179,8 @@ export default function DashboardLayout({
 
         {/* User Section */}
         <div className="p-4 border-t border-gray-200 dark:border-slate-700/50 bg-gray-50 dark:bg-gradient-to-r dark:from-slate-800/50 dark:to-slate-800/30">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center gap-3">
+            <ThemeToggle />
             <div className="p-2 rounded-full bg-indigo-50 dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-purple-500/20 border border-indigo-200 dark:border-indigo-500/30">
               <UserButton
                 appearance={{
@@ -177,34 +195,55 @@ export default function DashboardLayout({
         </div>
       </aside>
 
+      {/* Mobile Sidebar Drawer */}
+      <MobileSidebar
+        isOpen={mobileSidebarOpen}
+        onClose={() => setMobileSidebarOpen(false)}
+        credits={credits}
+        onShowCreditModal={() => setShowCreditModal(true)}
+      />
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar - Mobile Only */}
         <header className="bg-white dark:bg-gradient-to-r dark:from-slate-900/80 dark:via-slate-800/80 dark:to-slate-900/80 border-b border-gray-200 dark:border-slate-700/50 h-16 flex items-center px-6 shadow-sm lg:hidden">
           <div className="flex items-center justify-between w-full">
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="p-2 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 rounded-xl transition-all duration-200 hover:scale-110 border border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/30 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
+            </button>
             <h1 className="text-xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 dark:from-indigo-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
               PostForge AI
             </h1>
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 rounded-xl transition-all duration-200 hover:scale-110 border border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/30"
-            >
-              {sidebarOpen ? (
-                <X className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
-              ) : (
-                <Menu className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <div className="p-2 rounded-full bg-indigo-50 dark:bg-gradient-to-r dark:from-indigo-500/20 dark:to-purple-500/20 border border-indigo-200 dark:border-indigo-500/30">
+                <UserButton
+                  appearance={{
+                    elements: {
+                      avatarBox: 'w-8 h-8',
+                    },
+                  }}
+                  afterSignOutUrl="/"
+                />
+              </div>
+            </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto">
+        {/* Page Content with bottom nav padding */}
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">
           <div className="bg-gray-50 dark:bg-gradient-to-br dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 min-h-full">
             {children}
           </div>
         </main>
       </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <BottomNav />
 
       {/* Credit Purchase Modal */}
       <CreditPurchaseModal

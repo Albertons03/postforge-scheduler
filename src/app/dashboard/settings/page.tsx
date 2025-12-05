@@ -2,6 +2,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { ProfileSection } from '@/components/settings/ProfileSection';
+import { AppearanceSection } from '@/components/settings/AppearanceSection';
 import { BillingSection } from '@/components/settings/BillingSection';
 import { UsageSection } from '@/components/settings/UsageSection';
 import { AccountSection } from '@/components/settings/AccountSection';
@@ -40,6 +41,13 @@ export default async function SettingsPage() {
     redirect('/sign-in');
   }
 
+  // Extract only the serializable data from clerkUser
+  const clerkUserData = {
+    firstName: clerkUser.firstName,
+    lastName: clerkUser.lastName,
+    imageUrl: clerkUser.imageUrl,
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       <div className="container max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -56,9 +64,14 @@ export default async function SettingsPage() {
         <div className="space-y-8">
           {/* Profile Section */}
           <ProfileSection
-            clerkUser={clerkUser}
+            clerkUser={clerkUserData}
             dbUser={user}
           />
+
+          <Separator className="bg-slate-700/50" />
+
+          {/* Appearance Section */}
+          <AppearanceSection />
 
           <Separator className="bg-slate-700/50" />
 
